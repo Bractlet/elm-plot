@@ -1,7 +1,7 @@
 {
-    "version": "5.1.0",
-    "summary": "Tufte plots and charts in SVG and Elm!",
-    "repository": "https://github.com/terezka/elm-plot.git",
+    "version": "1.0.0",
+    "summary": "Bractlet version of elm-plot (forked from terezka)",
+    "repository": "https://github.com/Bractlet/elm-plot.git",
     "license": "BSD3",
     "source-directories": [
         "./src",
