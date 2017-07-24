@@ -1303,9 +1303,21 @@ handleHint summary toMsg =
 plotPosition : Json.Decoder DOM.Rectangle
 plotPosition =
     Json.oneOf
-        [ DOM.boundingClientRect
+        [ boundingPositionIfNotSvg
         , Json.lazy (\_ -> DOM.parentElement plotPosition)
         ]
+
+
+boundingPositionIfNotSvg : Json.Decoder DOM.Rectangle
+boundingPositionIfNotSvg =
+    (Json.field "namespaceURI" Json.string)
+        |> Json.andThen
+            (\namespace ->
+                if (String.toLower namespace) /= "http://www.w3.org/2000/svg" then
+                    DOM.boundingClientRect
+                else
+                    Json.fail "inside svg yet"
+            )
 
 
 unScalePoint : PlotSummary -> Float -> Float -> DOM.Rectangle -> Maybe Point
