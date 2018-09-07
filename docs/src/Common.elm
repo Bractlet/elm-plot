@@ -1,16 +1,15 @@
-module Common
-    exposing
-        ( PlotExample
-        , plotSize
-        , axisColor
-        , axisColorLight
-        , blueFill
-        , blueStroke
-        , pinkFill
-        , pinkStroke
-        , skinFill
-        , skinStroke
-        )
+module Common exposing
+    ( PlotExample
+    , axisColor
+    , axisColorLight
+    , blueFill
+    , blueStroke
+    , pinkFill
+    , pinkStroke
+    , plotSize
+    , skinFill
+    , skinStroke
+    )
 
 import Svg exposing (Svg)
 

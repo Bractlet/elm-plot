@@ -1,150 +1,127 @@
-module Plot
-    exposing
-        ( PlotCustomizations
-        , PlotSummary
-        , Point
-        , defaultSeriesPlotCustomizations
-        , defaultBarsPlotCustomizations
-        , normalHintContainer
-        , flyingHintContainer
-        , normalHintContainerInner
-        , JunkCustomizations
-        , junk
-          -- SERIES
-        , viewSeries
-        , viewSeriesCustom
-        , Series
-        , Interpolation(..)
-        , dots
-        , line
-        , area
-        , customSeries
-        , DataPoint
-        , square
-        , circle
-        , diamond
-        , triangle
-        , clear
-        , dot
-        , hintDot
-        , emphasizedDot
-        , rangeFrameDot
-        , customDot
-          -- BARS
-        , viewBars
-        , viewBarsCustom
-        , Bars
-        , BarGroup
-        , MaxBarWidth(..)
-        , groups
-        , group
-        , hintGroup
-        , histogram
-        , histogramBar
-        , customGroups
-        , customGroup
-          -- AXIS
-        , Axis
-        , AxisSummary
-        , TickCustomizations
-        , LabelCustomizations
-        , LineCustomizations
-        , sometimesYouDoNotHaveAnAxis
-        , clearAxis
-        , normalAxis
-        , normalBarsAxis
-        , axisAtMin
-        , axisAtMax
-        , customAxis
-        , closestToZero
-        , decentPositions
-        , interval
-        , remove
-        , simpleLine
-        , simpleTick
-        , simpleLabel
-        , viewLabel
-        , fullLine
-          -- GRID
-        , Grid
-        , GridLineCustomizations
-        , decentGrid
-        , clearGrid
-        , customGrid
-          -- HELP
-        , viewCircle
-        , viewSquare
-        , viewDiamond
-        , viewTriangle
-        , displace
-        )
+module Plot exposing
+    ( viewSeries
+    , dots, line, area
+    , clear, square, circle, diamond, triangle
+    , Series, Interpolation(..), customSeries, DataPoint, dot, hintDot, rangeFrameDot, emphasizedDot, customDot
+    , viewCircle, viewSquare, viewDiamond, viewTriangle
+    , viewBars
+    , groups, group, histogram, histogramBar
+    , Bars, BarGroup, MaxBarWidth(..), hintGroup, customGroups, customGroup
+    , PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
+    , Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
+    , Grid, GridLineCustomizations, decentGrid, clearGrid, customGrid
+    , JunkCustomizations, junk
+    , Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
+    , normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, clearAxis, axisAtMin, axisAtMax, customAxis, closestToZero
+    , decentPositions, interval, remove
+    , simpleLine, simpleTick, simpleLabel, fullLine, viewLabel, displace
+    -- BARS
+    -- HELP
+    -- AXIS
+    -- GRID
+    -- SERIES
+    )
 
 {-|
 
+
 # Series
+
 @docs viewSeries
 
+
 ## Simple series
+
 @docs dots, line, area
 
+
 ## Simple data points
+
 Data points are the coordinates which make up your series. They come with views or without.
 Pass your x and y coordinates, respectively, to create a data point for your series.
+
 @docs clear, square, circle, diamond, triangle
 
+
 ## Custom series
+
 @docs Series, Interpolation, customSeries, DataPoint, dot, hintDot, rangeFrameDot, emphasizedDot, customDot
 
+
 ## Small helper views
+
 Just thought you might want a hand with all the views you need for your data points.
+
 @docs viewCircle, viewSquare, viewDiamond, viewTriangle
 
+
 # Bars
+
 @docs viewBars
 
+
 # Simple bars
+
 @docs groups, group, histogram, histogramBar
 
+
 ## Custom bars
+
 @docs Bars, BarGroup, MaxBarWidth, hintGroup, customGroups, customGroup
 
+
 # Custom plot
+
 @docs PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
 
+
 ## Hint customizations
+
 @docs Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
 
+
 ## Grid customizations
+
 @docs Grid, GridLineCustomizations, decentGrid, clearGrid, customGrid
 
+
 ## Junk
+
 @docs JunkCustomizations, junk
 
+
 # Axis customizations
+
 @docs Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
 
+
 # Various axis
+
 @docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, clearAxis, axisAtMin, axisAtMax, customAxis, closestToZero
 
+
 ## Position helpers
+
 @docs decentPositions, interval, remove
 
+
 ## Small axis helpers
+
 @docs simpleLine, simpleTick, simpleLabel, fullLine, viewLabel, displace
 
 -}
 
-import Html exposing (Html, div, span)
-import Html.Events
-import Html.Attributes
-import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect, polygon)
-import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
-import Internal.Draw as Draw exposing (..)
-import Internal.Colors exposing (..)
-import Json.Decode as Json
-import Round
-import Regex
 import DOM
+import Html exposing (Html, div, span)
+import Html.Attributes
+import Html.Events
+import Internal.Colors exposing (..)
+import Internal.Draw as Draw exposing (..)
+import Json.Decode as Json
+import Regex
+import Round
+import Svg exposing (Attribute, Svg, g, path, polygon, rect, svg, text, text_, tspan)
+import Svg.Attributes as Attributes exposing (class, clipPath, fill, r, stroke, strokeDasharray, strokeWidth, style, transform, x2, y2)
 
 
 {-| Just an x and a y property.
@@ -210,8 +187,8 @@ clear =
 
 
 {-| The data point. Here you can do tons of crazy stuff, although most
-  importantly, you can specify the coordinates of your plot with
-  the `x` and `y` properties. Besides that you can:
+importantly, you can specify the coordinates of your plot with
+the `x` and `y` properties. Besides that you can:
 
   - `view`: Add an SVG view at your data point.
   - `xLine`: Provide a summary of the vertical axis, you can create
@@ -253,7 +230,7 @@ dot view x y =
 
 
 {-| Like `dot`, except it also takes a maybe coordinates to know if
-  it should add a hint view/vertical line or not.
+it should add a hint view/vertical line or not.
 -}
 hintDot : Svg msg -> Maybe Point -> Float -> Float -> DataPoint msg
 hintDot view hovering x y =
@@ -274,6 +251,7 @@ onHovering stuff hovering x =
         (\p ->
             if p.x == x then
                 Just stuff
+
             else
                 Nothing
         )
@@ -281,7 +259,7 @@ onHovering stuff hovering x =
 
 
 {-| Really a silly surprise dot you can use if you want to be flashy. Try it if
-  you're feeling lucky.
+you're feeling lucky.
 -}
 emphasizedDot : Svg msg -> Float -> Float -> DataPoint msg
 emphasizedDot view x y =
@@ -297,9 +275,9 @@ emphasizedDot view x y =
 
 
 {-| This dot implements a special plot in [Tuftes](https://en.wikipedia.org/wiki/Edward_Tufte) [book](https://www.amazon.com/Visual-Display-Quantitative-Information/dp/1930824130).
-  It basically just adds ticks to your axis where [your data points are](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png)!
-  You might want to use `clearAxis` to remove all the other useless chart junk, now that you have all
-  these nice ticks.
+It basically just adds ticks to your axis where [your data points are](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png)!
+You might want to use `clearAxis` to remove all the other useless chart junk, now that you have all
+these nice ticks.
 -}
 rangeFrameDot : Svg msg -> Float -> Float -> DataPoint msg
 rangeFrameDot view x y =
@@ -317,7 +295,7 @@ rangeFrameDot view x y =
 normalHint : Float -> Html msg
 normalHint y =
     span
-        [ Html.Attributes.style [ ( "padding", "5px" ) ] ]
+        [ Html.Attributes.style "padding" "5px" ]
         [ Html.text ("y: " ++ toString y) ]
 
 
@@ -342,10 +320,10 @@ customDot =
 
 
 {-| The series configuration allows you to specify your
-  own interpolation and how your data is transformed into series data points,
-  but also a vertical axis relating to the series' scale. This way it's made sure
-  you never have more than one y-axis per data set, because that would be just
-  crazy.
+own interpolation and how your data is transformed into series data points,
+but also a vertical axis relating to the series' scale. This way it's made sure
+you never have more than one y-axis per data set, because that would be just
+crazy.
 -}
 type alias Series data msg =
     { axis : Axis
@@ -385,15 +363,16 @@ area toDataPoints =
 
     line : (data -> List (DataPoint msg)) -> Series data msg
     line toDataPoints =
-      { axis = normalAxis
-      , interpolation = Linear Nothing [ stroke pinkStroke ]
-      , toDataPoints = toDataPoints
-      }
+        { axis = normalAxis
+        , interpolation = Linear Nothing [ stroke pinkStroke ]
+        , toDataPoints = toDataPoints
+        }
 
-  Maybe pink isn't really your color and you want to make it green. No problem! You
-  just add some different attributes to the interpolation. If you want a different
-  interpolation or an area under that interpolation, look at the
-  [Interpolation](#Interpolation) type for more info.
+Maybe pink isn't really your color and you want to make it green. No problem! You
+just add some different attributes to the interpolation. If you want a different
+interpolation or an area under that interpolation, look at the
+[Interpolation](#Interpolation) type for more info.
+
 -}
 customSeries : Axis -> Interpolation -> (data -> List (DataPoint msg)) -> Series data msg
 customSeries =
@@ -401,7 +380,8 @@ customSeries =
 
 
 {-| [Interpolation](https://en.wikipedia.org/wiki/Interpolation) is basically the line that goes
-  between your data points. Your current options are:
+between your data points. Your current options are:
+
   - None: No interpolation (a scatter plot).
   - Linear: A straight line.
   - Monotone: A nice looking curvy line which doesn't extend outside the y values of the two
@@ -409,6 +389,7 @@ customSeries =
 
 All but `None` **takes a color which determines whether it draws the area below the interpolation** and
 a list of attributes which you can use for styling your interpolation.
+
 -}
 type Interpolation
     = None
@@ -421,8 +402,8 @@ type Interpolation
 
 
 {-| The bar configurations allows you to specify the styles of
-  your bars, the max width of your bars, how your data is transformed into
-  bar groups, as well the vertical axis related to your bar series.
+your bars, the max width of your bars, how your data is transformed into
+bar groups, as well the vertical axis related to your bar series.
 -}
 type alias Bars data msg =
     { axis : Axis
@@ -433,17 +414,18 @@ type alias Bars data msg =
 
 
 {-| A bar group is, well, a group of bars attached to a single data point on
-  the horizontal axis.
+the horizontal axis.
 
   - The `bars` property specify the height and label of each bar in your
-  group.
+    group.
   - The `label` is what will show up on the horizontal axis
-  at that data point. This is a function as you don't get to pick your own x.
-  This is because bar charts, per design, are supposed to be scattered at a consistent
-  interval.
+    at that data point. This is a function as you don't get to pick your own x.
+    This is because bar charts, per design, are supposed to be scattered at a consistent
+    interval.
   - The `hint` property is the view which will show up in your hint when
-  hovering the group.
+    hovering the group.
   - The `verticalLine` property is an option to add a vertical line. Nice when you have a hint.
+
 -}
 type alias BarGroup =
     { label : Float -> LabelCustomizations
@@ -461,8 +443,8 @@ type alias Bar =
 
 
 {-| The width options of your bars. If `Percentage` is used, it will be _maximum_ that
-  percentage of one unit on the horizontal axis wide. Similarily, using `Fixed` will
-  set your bar to be maximum the provided float in pixels.
+percentage of one unit on the horizontal axis wide. Similarily, using `Fixed` will
+set your bar to be maximum the provided float in pixels.
 -}
 type MaxBarWidth
     = Percentage Int
@@ -470,17 +452,18 @@ type MaxBarWidth
 
 
 {-| For pink and blue bar groups. If you have more than two colors, you have to
-  make your own group. Under this documentation, it looks like this:
+make your own group. Under this documentation, it looks like this:
 
     groups : (data -> List BarGroup) -> Bars data msg
     groups toGroups =
-      { axis = normalAxis
-      , toGroups = toGroups
-      , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
-      , maxWidth = Percentage 75
-      }
+        { axis = normalAxis
+        , toGroups = toGroups
+        , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
+        , maxWidth = Percentage 75
+        }
 
-  So you can just go right ahead and add a third pastel to those styles!
+So you can just go right ahead and add a third pastel to those styles!
+
 -}
 groups : (data -> List BarGroup) -> Bars data msg
 groups toGroups =
@@ -514,7 +497,7 @@ hintGroup hovering label heights =
 
 
 {-| For histograms! Meaning that there is only one bar in each group and it's always
-  one horizontal unit wide.
+one horizontal unit wide.
 -}
 histogram : (data -> List BarGroup) -> Bars data msg
 histogram toGroups =
@@ -560,7 +543,7 @@ customGroup =
 
 
 {-| So because there is extra funky labels added to your bar groups,
-  your axis should not be cluttered up with other random numbers. So use this one.
+your axis should not be cluttered up with other random numbers. So use this one.
 -}
 normalBarsAxis : Axis
 normalBarsAxis =
@@ -602,6 +585,7 @@ normalBarLabel label position =
 
 _Note:_ The `id` is particularily important when you have
 several plots in your dom.
+
 -}
 type alias PlotCustomizations msg =
     { attributes : List (Attribute msg)
@@ -670,7 +654,7 @@ type alias JunkCustomizations msg =
 
 
 {-| Takes a `view`, an `x` coordinate and a `y` coordinate, and you can put your junk anywhere!
-  If you want to add a title, which I assume is the real reason why you're here, you can do this:
+If you want to add a title, which I assume is the real reason why you're here, you can do this:
 
     title : Svg msg
     title =
@@ -695,6 +679,7 @@ Not sure if this is self explanatory, but `summary.x.min/max`, `summary.y.min/ma
 are just floats which you can do anything you'd like with.
 
 You can of course also put other junk here, like legends for example.
+
 -}
 junk : Svg msg -> Float -> Float -> JunkCustomizations msg
 junk title x y =
@@ -715,11 +700,11 @@ defaultBarsPlotCustomizations =
 
 
 {-| A view located at the bottom left corner of your plot, holding the hint views you
-  (maybe) added in your data points or groups.
+(maybe) added in your data points or groups.
 -}
 normalHintContainer : PlotSummary -> List (Html Never) -> Html Never
 normalHintContainer summary =
-    div [ Html.Attributes.style [ ( "margin-left", toString summary.x.marginLower ++ "px" ) ] ]
+    div [ Html.Attributes.style "margin-left" (toString summary.x.marginLower ++ "px") ]
 
 
 {-| A view holding your hint views which flies around on your plot following the hovered x.
@@ -738,14 +723,15 @@ viewFlyingHintContainer : (Bool -> List (Html Never) -> Html Never) -> Point -> 
 viewFlyingHintContainer inner { x } summary hints =
     let
         xOffset =
-            (toSVGX summary x) * 100 / summary.x.length
+            toSVGX summary x * 100 / summary.x.length
 
         isLeft =
-            (x - summary.x.min) > (range summary.x) / 2
+            (x - summary.x.min) > range summary.x / 2
 
         direction =
             if isLeft then
                 "translateX(-100%)"
+
             else
                 "translateX(0)"
 
@@ -757,7 +743,7 @@ viewFlyingHintContainer inner { x } summary hints =
             , ( "pointer-events", "none" )
             ]
     in
-        div [ Html.Attributes.style style, class "elm-plot__hint" ] [ inner isLeft hints ]
+    div [ Html.Attributes.style style, class "elm-plot__hint" ] [ inner isLeft hints ]
 
 
 {-| The normal hint view.
@@ -768,20 +754,19 @@ normalHintContainerInner isLeft hints =
         margin =
             if isLeft then
                 10
+
             else
                 10
     in
-        div
-            [ Html.Attributes.style
-                [ ( "margin", "0 " ++ toString margin ++ "px" )
-                , ( "padding", "5px 10px" )
-                , ( "background", grey )
-                , ( "border-radius", "2px" )
-                , ( "color", "black" )
-                ]
-            , class "elm-plot__hint"
-            ]
-            hints
+    div
+        [ Html.Attributes.style "margin" ("0 " ++ toString margin ++ "px")
+        , Html.Attributes.style "padding" "5px 10px"
+        , Html.Attributes.style "background" grey
+        , Html.Attributes.style "border-radius" "2px"
+        , Html.Attributes.style "color" "black"
+        , class "elm-plot__hint"
+        ]
+        hints
 
 
 
@@ -802,8 +787,8 @@ type alias GridLineCustomizations =
 
 
 {-| A grid with decent spacing. Uses the `decentPositions` function to calculate
-  the positions of the grid lines. This also means that if you use `decentPositions`
-  to calculate your tick positions, then they will match.
+the positions of the grid lines. This also means that if you use `decentPositions`
+to calculate your tick positions, then they will match.
 -}
 decentGrid : Grid
 decentGrid =
@@ -884,19 +869,21 @@ sometimesYouDoNotHaveAnAxis =
 
 
 {-| When you want to make your own axis. This is where the fun starts! The
-  `normalAxis` looks like this on the inside:
+`normalAxis` looks like this on the inside:
 
     normalAxis : Axis
     normalAxis =
-      customAxis <| \summary ->
-        { position = closestToZero
-        , axisLine = Just (simpleLine summary)
-        , ticks = List.map simpleTick (decentPositions summary |> remove 0)
-        , labels = List.map simpleLabel (decentPositions summary |> remove 0)
-        , flipAnchor = False
-        }
+        customAxis <|
+            \summary ->
+                { position = closestToZero
+                , axisLine = Just (simpleLine summary)
+                , ticks = List.map simpleTick (decentPositions summary |> remove 0)
+                , labels = List.map simpleLabel (decentPositions summary |> remove 0)
+                , flipAnchor = False
+                }
 
-  But the special snowflake you are, you might want something different.
+But the special snowflake you are, you might want something different.
+
 -}
 customAxis : (AxisSummary -> AxisCustomizations) -> Axis
 customAxis =
@@ -932,8 +919,8 @@ clearAxis =
 
 
 {-| An axis which is placed at the minimum of your axis! Meaning if you use it as
-  a vertical axis, then it will end up to the far left, and if you use it as
-  a horizontal axis, then it will end up in the bottom.
+a vertical axis, then it will end up to the far left, and if you use it as
+a horizontal axis, then it will end up in the bottom.
 -}
 axisAtMin : Axis
 axisAtMin =
@@ -1004,9 +991,9 @@ displace x y =
 
 
 {-| A helper to position your axis as close to zero as possible, meaning if your
- range is 4 - 10, then the x-axis will be a 4, as that's the closest to zero it gets.
- Useful for avoiding confusion when your axis disappears below the reach of your plot
- because zero is not in your plot.
+range is 4 - 10, then the x-axis will be a 4, as that's the closest to zero it gets.
+Useful for avoiding confusion when your axis disappears below the reach of your plot
+because zero is not in your plot.
 -}
 closestToZero : Float -> Float -> Float
 closestToZero min max =
@@ -1018,20 +1005,21 @@ closestToZero min max =
 
 
 {-| A series is a list of data points possibly joined by some sort of
-  interpolation. The example below renders an area, with the coordinates
-  of the last argument given to `viewSeries`, where the coordinates are
-  emphasized with a circle.
+interpolation. The example below renders an area, with the coordinates
+of the last argument given to `viewSeries`, where the coordinates are
+emphasized with a circle.
 
     view : Svg msg
     view =
-      viewSeries
-        [ area (List.map (\{ x, y } -> circle x y)) ]
-        [ { x = 0, y = 1 }
-        , { x = 2, y = 2 }
-        , { x = 3, y = 3 }
-        , { x = 4, y = 5 }
-        , { x = 5, y = 8 }
-        ]
+        viewSeries
+            [ area (List.map (\{ x, y } -> circle x y)) ]
+            [ { x = 0, y = 1 }
+            , { x = 2, y = 2 }
+            , { x = 3, y = 3 }
+            , { x = 4, y = 5 }
+            , { x = 5, y = 8 }
+            ]
+
 -}
 viewSeries : List (Series data msg) -> data -> Html msg
 viewSeries =
@@ -1106,9 +1094,9 @@ viewSeriesCustom customizations series data =
                 , viewJunks
                 ]
     in
-        div
-            (containerAttributes customizations summary)
-            [ svg (innerAttributes customizations) children, viewHint ]
+    div
+        (containerAttributes customizations summary)
+        [ svg (innerAttributes customizations) children, viewHint ]
 
 
 addNiceReachForSeries : Series data msg -> TempPlotSummary -> TempPlotSummary
@@ -1142,17 +1130,18 @@ addNiceReachForArea area ({ y, x } as summary) =
 
 
 {-| This is for viewing a bar chart! The example below renders four groups of two
-  bars each, labeled Q1, Q2, Q3, Q4 respectively.
+bars each, labeled Q1, Q2, Q3, Q4 respectively.
 
     view : Svg msg
     view =
-      viewBars
-        (groups (List.map (\data -> group data.label data.heights)))
-        [ { label = "Q1", heights = [ 1, 2 ] }
-        , { label = "Q2", heights = [ 3, 4 ] }
-        , { label = "Q3", heights = [ 4, 5 ] }
-        , { label = "Q4", heights = [ 3, 2 ] }
-        ]
+        viewBars
+            (groups (List.map (\data -> group data.label data.heights)))
+            [ { label = "Q1", heights = [ 1, 2 ] }
+            , { label = "Q2", heights = [ 3, 4 ] }
+            , { label = "Q3", heights = [ 4, 5 ] }
+            , { label = "Q4", heights = [ 3, 2 ] }
+            ]
+
 -}
 viewBars : Bars data msg -> data -> Html msg
 viewBars =
@@ -1217,8 +1206,8 @@ viewBarsCustom customizations bars data =
                 , viewGlitter
                 ]
     in
-        div (containerAttributes customizations summary)
-            [ svg (innerAttributes customizations) children, viewHint ]
+    div (containerAttributes customizations summary)
+        [ svg (innerAttributes customizations) children, viewHint ]
 
 
 addNiceReachForBars : TempPlotSummary -> TempPlotSummary
@@ -1236,7 +1225,7 @@ addNiceReachForBars ({ x, y } as summary) =
 defineClipPath : PlotCustomizations msg -> PlotSummary -> Svg.Svg msg
 defineClipPath customizations summary =
     Svg.defs [] <|
-        (Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
+        Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
             [ Svg.rect
                 [ Attributes.x (toString summary.x.marginLower)
                 , Attributes.y (toString summary.y.marginLower)
@@ -1245,7 +1234,6 @@ defineClipPath customizations summary =
                 ]
                 []
             ]
-        )
             :: customizations.defs
 
 
@@ -1261,25 +1249,21 @@ containerAttributes customizations summary =
             [ Html.Events.on "mousemove" (handleHint summary toMsg)
             , Html.Events.onMouseLeave (toMsg Nothing)
             , Attributes.id customizations.id
-            , Html.Attributes.style
-                [ ( "position", "relative" )
-                , ( "margin", "0 auto" )
-                ]
+            , Html.Attributes.style "position" "relative"
+            , Html.Attributes.style "margin" "0 auto"
             ]
 
         Nothing ->
             [ Attributes.id customizations.id
-            , Html.Attributes.style
-                [ ( "position", "relative" )
-                , ( "margin", "0 auto" )
-                ]
+            , Html.Attributes.style "position" "relative"
+            , Html.Attributes.style "margin" "0 auto"
             ]
 
 
 innerAttributes : PlotCustomizations msg -> List (Attribute msg)
 innerAttributes customizations =
     customizations.attributes
-        ++ [ Attributes.viewBox <| "0 0 " ++ (toString customizations.width) ++ " " ++ (toString customizations.height) ]
+        ++ [ Attributes.viewBox <| "0 0 " ++ toString customizations.width ++ " " ++ toString customizations.height ]
 
 
 viewActualJunk : PlotSummary -> JunkCustomizations msg -> Svg msg
@@ -1325,10 +1309,11 @@ toNearestX summary exactX =
         updateIfCloser closest x =
             if diff x exactX > diff closest exactX then
                 closest
+
             else
                 x
     in
-        List.foldl updateIfCloser default summary.x.all
+    List.foldl updateIfCloser default summary.x.all
 
 
 diff : Float -> Float -> Float
@@ -1382,27 +1367,27 @@ toPlotSummary customizations toNiceReach points =
                 |> Maybe.withDefault defaultPlotSummary
                 |> toNiceReach
     in
-        { x =
-            { min = customizations.toRangeLowest (plotSummary.x.min)
-            , max = customizations.toRangeHighest (plotSummary.x.max)
-            , dataMin = plotSummary.x.min
-            , dataMax = plotSummary.x.max
-            , length = toFloat customizations.width
-            , marginLower = toFloat customizations.margin.left
-            , marginUpper = toFloat customizations.margin.right
-            , all = List.sort plotSummary.x.all
-            }
-        , y =
-            { min = customizations.toDomainLowest (plotSummary.y.min)
-            , max = customizations.toDomainHighest (plotSummary.y.max)
-            , dataMin = plotSummary.y.min
-            , dataMax = plotSummary.y.max
-            , length = toFloat customizations.height
-            , marginLower = toFloat customizations.margin.top
-            , marginUpper = toFloat customizations.margin.bottom
-            , all = plotSummary.y.all
-            }
+    { x =
+        { min = customizations.toRangeLowest plotSummary.x.min
+        , max = customizations.toRangeHighest plotSummary.x.max
+        , dataMin = plotSummary.x.min
+        , dataMax = plotSummary.x.max
+        , length = toFloat customizations.width
+        , marginLower = toFloat customizations.margin.left
+        , marginUpper = toFloat customizations.margin.right
+        , all = List.sort plotSummary.x.all
         }
+    , y =
+        { min = customizations.toDomainLowest plotSummary.y.min
+        , max = customizations.toDomainHighest plotSummary.y.max
+        , dataMin = plotSummary.y.min
+        , dataMax = plotSummary.y.max
+        , length = toFloat customizations.height
+        , marginLower = toFloat customizations.margin.top
+        , marginUpper = toFloat customizations.margin.bottom
+        , all = plotSummary.y.all
+        }
+    }
 
 
 
@@ -1425,7 +1410,7 @@ viewActualVerticalGrid summary gridLines =
         viewGridLine { attributes, position } =
             draw attributes (linear summary [ { x = position, y = summary.y.min }, { x = position, y = summary.y.max } ])
     in
-        g [ class "elm-plot__horizontal-grid" ] (List.map viewGridLine gridLines)
+    g [ class "elm-plot__horizontal-grid" ] (List.map viewGridLine gridLines)
 
 
 
@@ -1448,7 +1433,7 @@ viewActualHorizontalGrid summary gridLines =
         viewGridLine { attributes, position } =
             draw attributes (linear summary [ { x = summary.x.min, y = position }, { x = summary.x.max, y = position } ])
     in
-        g [ class "elm-plot__vertical-grid" ] (List.map viewGridLine gridLines)
+    g [ class "elm-plot__vertical-grid" ] (List.map viewGridLine gridLines)
 
 
 
@@ -1558,7 +1543,7 @@ viewSquare width color =
 
 
 {-| Pass width, height and color to make a diamond and impress with your
-  classy plot!
+classy plot!
 -}
 viewDiamond : Float -> Float -> String -> Svg msg
 viewDiamond width height color =
@@ -1602,11 +1587,12 @@ viewActualBars summary { styles, maxWidth } groups =
         width =
             case maxWidth of
                 Percentage perc ->
-                    defaultWidth * (toFloat perc) / 100
+                    defaultWidth * toFloat perc / 100
 
                 Fixed max ->
                     if defaultWidth > unScaleValue summary.x max then
                         unScaleValue summary.x max
+
                     else
                         defaultWidth
 
@@ -1633,13 +1619,13 @@ viewActualBars summary { styles, maxWidth } groups =
                 ]
 
         indexedHeights group =
-            List.indexedMap (,) group.bars
+            List.indexedMap (\a b -> ( a, b )) group.bars
 
         viewGroup index group =
             g [ class "elm-plot__bars__group" ]
                 (List.map2 (viewBar (toFloat (index + 1))) styles (indexedHeights group))
     in
-        Just <| g [ class "elm-plot__bars" ] (List.indexedMap viewGroup groups)
+    Just <| g [ class "elm-plot__bars" ] (List.indexedMap viewGroup groups)
 
 
 
@@ -1665,12 +1651,14 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, flipAnchor
         lengthOfTick length =
             if flipAnchor then
                 -length
+
             else
                 length
 
         positionOfLabel =
             if flipAnchor then
                 -10
+
             else
                 20
 
@@ -1681,11 +1669,11 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, flipAnchor
             g [ place summary (at position) 0 positionOfLabel, style "text-anchor: middle;" ]
                 [ view ]
     in
-        g [ class "elm-plot__horizontal-axis" ]
-            [ viewAxisLine summary at axisLine
-            , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
-            , g [ class "elm-plot__labels" ] (List.map viewLabel (labels ++ glitterLabels))
-            ]
+    g [ class "elm-plot__horizontal-axis" ]
+        [ viewAxisLine summary at axisLine
+        , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
+        , g [ class "elm-plot__labels" ] (List.map viewLabel (labels ++ glitterLabels))
+        ]
 
 
 
@@ -1711,18 +1699,21 @@ viewActualVerticalAxis summary { position, axisLine, ticks, labels, flipAnchor }
         lengthOfTick length =
             if flipAnchor then
                 length
+
             else
                 -length
 
         positionOfLabel =
             if flipAnchor then
                 10
+
             else
                 -10
 
         anchorOfLabel =
             if flipAnchor then
                 "text-anchor: start;"
+
             else
                 "text-anchor: end;"
 
@@ -1734,11 +1725,11 @@ viewActualVerticalAxis summary { position, axisLine, ticks, labels, flipAnchor }
             g [ place summary (at position) positionOfLabel 5, style anchorOfLabel ]
                 [ view ]
     in
-        g [ class "elm-plot__vertical-axis" ]
-            [ viewAxisLine summary at axisLine
-            , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
-            , g [ class "elm-plot__labels" ] (List.map viewLabel labels)
-            ]
+    g [ class "elm-plot__vertical-axis" ]
+        [ viewAxisLine summary at axisLine
+        , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
+        , g [ class "elm-plot__labels" ] (List.map viewLabel labels)
+        ]
 
 
 
@@ -1772,12 +1763,13 @@ viewLabel attributes string =
 
 viewGlitterLines :
     PlotSummary
-    -> { a
-        | xLine : Maybe (AxisSummary -> LineCustomizations)
-        , yLine : Maybe (AxisSummary -> LineCustomizations)
-        , x : Float
-        , y : Float
-       }
+    ->
+        { a
+            | xLine : Maybe (AxisSummary -> LineCustomizations)
+            , yLine : Maybe (AxisSummary -> LineCustomizations)
+            , x : Float
+            , y : Float
+        }
     -> List (Svg Never)
 viewGlitterLines summary { xLine, yLine, x, y } =
     [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) xLine)
@@ -1795,14 +1787,15 @@ decentPositions : AxisSummary -> List Float
 decentPositions summary =
     if summary.length > 600 then
         interval 0 (niceInterval summary.min summary.max 10) summary
+
     else
         interval 0 (niceInterval summary.min summary.max 5) summary
 
 
 {-| For ticks with a particular interval. The first value passed is the offset,
-  and the second value is the actual interval. The offset is useful when you want
-   two sets of ticks with different views. For example, if you want a long tick
-   at every 2 * x and a small tick at every 2 * x + 1.
+and the second value is the actual interval. The offset is useful when you want
+two sets of ticks with different views. For example, if you want a long tick
+at every 2 \* x and a small tick at every 2 \* x + 1.
 -}
 interval : Float -> Float -> AxisSummary -> List Float
 interval offset delta { min, max } =
@@ -1816,23 +1809,25 @@ interval offset delta { min, max } =
         indexes =
             List.range 0 <| count delta min range value
     in
-        List.map (tickPosition delta value) indexes
+    List.map (tickPosition delta value) indexes
 
 
 {-| If you regret a particular position. Typically used for removing the label
-  at the origin. Use like this:
+at the origin. Use like this:
 
     normalAxis : Axis
     normalAxis =
-      axis <| \summary ->
-        { position = ClosestToZero
-        , axisLine = Just (simpleLine summary)
-        , ticks = List.map simpleTick (decentPositions summary |> remove 0)
-        , labels = List.map simpleLabel (decentPositions summary |> remove 0)
-        }
+        axis <|
+            \summary ->
+                { position = ClosestToZero
+                , axisLine = Just (simpleLine summary)
+                , ticks = List.map simpleTick (decentPositions summary |> remove 0)
+                , labels = List.map simpleLabel (decentPositions summary |> remove 0)
+                }
 
-  See how in the normal axis we make a bunch of ticks, but then remove the one we don't
-  want. You can do the same!
+See how in the normal axis we make a bunch of ticks, but then remove the one we don't
+want. You can do the same!
+
 -}
 remove : Float -> List Float -> List Float
 remove banned values =
@@ -1842,7 +1837,7 @@ remove banned values =
 tickPosition : Float -> Float -> Int -> Float
 tickPosition delta firstValue index =
     firstValue
-        + (toFloat index)
+        + toFloat index
         * delta
         |> Round.round (deltaPrecision delta)
         |> String.toFloat
@@ -1886,7 +1881,7 @@ niceInterval min max total =
 
         -- calculate an initial guess at step size
         delta0 =
-            range / (toFloat total)
+            range / toFloat total
 
         -- get the magnitude of the step size
         mag =
@@ -1903,14 +1898,17 @@ niceInterval min max total =
         magMsdFinal =
             if magMsd > 5 then
                 10
+
             else if magMsd > 2 then
                 5
+
             else if magMsd > 1 then
                 1
+
             else
                 magMsd
     in
-        toFloat magMsdFinal * magPow
+    toFloat magMsdFinal * magPow
 
 
 

@@ -1,15 +1,16 @@
-port module Docs exposing (..)
+port module Docs exposing (Model, examples, highlight, init, main, toUrl, update, updateFocused, view, viewCode, viewExample, viewFooter, viewHeader, viewLink, viewToggleText, viewToggler, visibilityClass)
 
-import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p, header)
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (style, src, href, class, classList, id, name)
-import Msg exposing (..)
 import Common exposing (..)
+import Html exposing (Html, a, br, code, div, h1, header, img, p, pre, span, text)
+import Html.Attributes exposing (class, classList, href, id, name, src, style)
+import Html.Events exposing (onClick)
+import Msg exposing (..)
 import Plot exposing (Point)
-import PlotSine
-import PlotRangeFrame
 import PlotAxis
 import PlotBars
+import PlotRangeFrame
+import PlotSine
+
 
 
 -- MODEL
@@ -38,19 +39,26 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ focused } as model) =
     case msg of
         FocusExample id ->
-            { model | focused = updateFocused id focused } ! []
+            ( { model | focused = updateFocused id focused }
+            , Cmd.none
+            )
 
         HoverRangeFrame point ->
-            { model | rangeFrameHover = point } ! []
+            ( { model | rangeFrameHover = point }
+            , Cmd.none
+            )
 
         HoverBars point ->
-            { model | barsHover = point } ! []
+            ( { model | barsHover = point }
+            , Cmd.none
+            )
 
 
 updateFocused : String -> Maybe String -> Maybe String
 updateFocused newId model =
     if Just newId == model then
         Nothing
+
     else
         Just newId
 
@@ -114,6 +122,7 @@ viewToggleText : Model -> String -> Html msg
 viewToggleText { focused } id =
     if focused == Just id then
         text "hide source"
+
     else
         text "view source"
 
@@ -145,6 +154,7 @@ visibilityClass : Model -> String -> String
 visibilityClass { focused } id =
     if focused == Just id then
         "view-plot__open"
+
     else
         "view-plot__closed"
 
@@ -174,6 +184,6 @@ main =
     Html.program
         { init = ( init, highlight () )
         , update = update
-        , subscriptions = (always Sub.none)
+        , subscriptions = always Sub.none
         , view = view
         }

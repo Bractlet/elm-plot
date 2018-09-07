@@ -1,4 +1,5 @@
 module Msg exposing (Msg(..))
+
 import Plot exposing (Point)
 
 
