@@ -123,13 +123,6 @@ import Round
 import Svg exposing (Attribute, Svg, g, path, polygon, rect, svg, text, text_, tspan)
 import Svg.Attributes as Attributes exposing (class, clipPath, fill, r, stroke, strokeDasharray, strokeWidth, style, transform, x2, y2)
 
-oldStyle : List ( String, String ) -> List (Attribute msg)
-oldStyle =
-    List.map
-        (\( k, v ) ->
-            Html.Attributes.style k v
-        )
-
 
 {-| Just an x and a y property.
 -}
@@ -770,15 +763,13 @@ normalHintContainerInner isLeft hints =
                 10
     in
     div
-        (class "elm-plot__hint"
-            :: oldStyle
-                [ ( "margin", "0 " ++ String.fromFloat margin ++ "px" )
-                , ( "padding", "5px 10px" )
-                , ( "background", grey )
-                , ( "border-radius", "2px" )
-                , ( "color", "black" )
-                ]
-        )
+        [ class "elm-plot__hint"
+        , Html.Attributes.style "margin" ("0 " ++ String.fromFloat margin ++ "px")
+        , Html.Attributes.style "padding" "5px 10px"
+        , Html.Attributes.style "background" grey
+        , Html.Attributes.style "border-radius" "2px"
+        , Html.Attributes.style "color" "black"
+        ]
         hints
 
 
@@ -1262,18 +1253,15 @@ containerAttributes customizations summary =
             [ Html.Events.on "mousemove" (handleHint summary toMsg)
             , Html.Events.onMouseLeave (toMsg Nothing)
             , Attributes.id customizations.id
+            , Html.Attributes.style "position" "relative"
+            , Html.Attributes.style "margin" "0 auto"
             ]
-                ++ oldStyle
-                    [ ( "position", "relative" )
-                    , ( "margin", "0 auto" )
-                    ]
 
         Nothing ->
-            Attributes.id customizations.id
-                :: oldStyle
-                    [ ( "position", "relative" )
-                    , ( "margin", "0 auto" )
-                    ]
+            [ Attributes.id customizations.id
+            , Html.Attributes.style "position" "relative"
+            , Html.Attributes.style "margin" "0 auto"
+            ]
 
 
 innerAttributes : PlotCustomizations msg -> List (Attribute msg)
