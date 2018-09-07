@@ -106,7 +106,7 @@ draw attributes commands =
 
 place : PlotSummary -> Point -> Float -> Float -> Attribute msg
 place plot { x, y } offsetX offsetY =
-    transform <| "translate(" ++ toString (toSVGX plot x + offsetX) ++ "," ++ toString (toSVGY plot y + offsetY) ++ ")"
+    transform <| "translate(" ++ String.fromFloat (toSVGX plot x + offsetX) ++ "," ++ String.fromFloat (toSVGY plot y + offsetY) ++ ")"
 
 
 
@@ -258,10 +258,10 @@ stringifyCommand command =
             "L" ++ pointToString (Point x y)
 
         HorizontalLine x ->
-            "H" ++ toString x
+            "H" ++ String.fromFloat x
 
         VerticalLine y ->
-            "V" ++ toString y
+            "V" ++ String.fromFloat y
 
         CubicBeziers cx1 cy1 cx2 cy2 x y ->
             "C" ++ pointsToString [ Point cx1 cy1, Point cx2 cy2, Point x y ]
@@ -279,7 +279,11 @@ stringifyCommand command =
             "A"
                 ++ joinCommands
                     [ pointToString (Point rx ry)
-                    , toString xAxisRotation
+                    , if xAxisRotation then
+                        "True"
+
+                      else
+                        "False"
                     , boolToString largeArcFlag
                     , boolToString sweepFlag
                     , pointToString (Point x y)
@@ -334,7 +338,7 @@ joinCommands commands =
 
 pointToString : Point -> String
 pointToString { x, y } =
-    toString x ++ " " ++ toString y
+    String.fromFloat x ++ " " ++ String.fromFloat y
 
 
 pointsToString : List Point -> String

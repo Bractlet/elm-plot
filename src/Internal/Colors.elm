@@ -1,4 +1,4 @@
-module Internal.Colors exposing (blueFill, blueStroke, darkGrey, grey, pinkFill, pinkStroke, transparent)
+module Internal.Colors exposing (..)
 
 
 pinkFill : String
@@ -23,14 +23,14 @@ blueStroke =
 
 transparent : String
 transparent =
-    "transparent"
+  "transparent"
 
 
 grey : String
 grey =
-    "#e3e3e3"
+  "#e3e3e3"
 
 
 darkGrey : String
 darkGrey =
-    "#a3a3a3"
+  "#a3a3a3"

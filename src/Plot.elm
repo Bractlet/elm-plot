@@ -123,6 +123,13 @@ import Round
 import Svg exposing (Attribute, Svg, g, path, polygon, rect, svg, text, text_, tspan)
 import Svg.Attributes as Attributes exposing (class, clipPath, fill, r, stroke, strokeDasharray, strokeWidth, style, transform, x2, y2)
 
+oldStyle : List ( String, String ) -> List (Attribute msg)
+oldStyle =
+    List.map
+        (\( k, v ) ->
+            Html.Attributes.style k v
+        )
+
 
 {-| Just an x and a y property.
 -}
@@ -296,7 +303,7 @@ normalHint : Float -> Html msg
 normalHint y =
     span
         [ Html.Attributes.style "padding" "5px" ]
-        [ Html.text ("y: " ++ toString y) ]
+        [ Html.text ("y: " ++ String.fromFloat y) ]
 
 
 {-| Just do whatever you want.
@@ -704,7 +711,7 @@ defaultBarsPlotCustomizations =
 -}
 normalHintContainer : PlotSummary -> List (Html Never) -> Html Never
 normalHintContainer summary =
-    div [ Html.Attributes.style "margin-left" (toString summary.x.marginLower ++ "px") ]
+    div [ Html.Attributes.style "margin-left" <| String.fromFloat summary.x.marginLower ++ "px" ]
 
 
 {-| A view holding your hint views which flies around on your plot following the hovered x.
@@ -715,8 +722,8 @@ flyingHintContainer inner hovering summary hints =
         Nothing ->
             text ""
 
-        Just point ->
-            viewFlyingHintContainer inner point summary hints
+        Just point_ ->
+            viewFlyingHintContainer inner point_ summary hints
 
 
 viewFlyingHintContainer : (Bool -> List (Html Never) -> Html Never) -> Point -> PlotSummary -> List (Html Never) -> Html Never
@@ -738,12 +745,16 @@ viewFlyingHintContainer inner { x } summary hints =
         style =
             [ ( "position", "absolute" )
             , ( "top", "25%" )
-            , ( "left", toString xOffset ++ "%" )
+            , ( "left", String.fromFloat xOffset ++ "%" )
             , ( "transform", direction )
             , ( "pointer-events", "none" )
             ]
     in
-    div [ Html.Attributes.style style, class "elm-plot__hint" ] [ inner isLeft hints ]
+    div
+        (class "elm-plot__hint"
+            :: List.map (\( k, v ) -> Html.Attributes.style k v) style
+        )
+        [ inner isLeft hints ]
 
 
 {-| The normal hint view.
@@ -759,13 +770,15 @@ normalHintContainerInner isLeft hints =
                 10
     in
     div
-        [ Html.Attributes.style "margin" ("0 " ++ toString margin ++ "px")
-        , Html.Attributes.style "padding" "5px 10px"
-        , Html.Attributes.style "background" grey
-        , Html.Attributes.style "border-radius" "2px"
-        , Html.Attributes.style "color" "black"
-        , class "elm-plot__hint"
-        ]
+        (class "elm-plot__hint"
+            :: oldStyle
+                [ ( "margin", "0 " ++ String.fromFloat margin ++ "px" )
+                , ( "padding", "5px 10px" )
+                , ( "background", grey )
+                , ( "border-radius", "2px" )
+                , ( "color", "black" )
+                ]
+        )
         hints
 
 
@@ -968,9 +981,9 @@ simpleTick position =
 {-| A simple label. You might want to try an make your own!
 -}
 simpleLabel : Float -> LabelCustomizations
-simpleLabel position =
-    { position = position
-    , view = viewLabel [] (toString position)
+simpleLabel pos =
+    { position = pos
+    , view = viewLabel [] (String.fromFloat pos)
     }
 
 
@@ -987,7 +1000,7 @@ fullLine attributes summary =
 {-| -}
 displace : Float -> Float -> Attribute msg
 displace x y =
-    transform <| "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
+    transform <| "translate(" ++ String.fromFloat x ++ ", " ++ String.fromFloat y ++ ")"
 
 
 {-| A helper to position your axis as close to zero as possible, meaning if your
@@ -1037,8 +1050,8 @@ viewSeriesCustom customizations series data =
         allDataPoints =
             List.concat dataPoints
 
-        addNiceReach summary =
-            List.foldl addNiceReachForSeries summary series
+        addNiceReach summary_ =
+            List.foldl addNiceReachForSeries summary_ series
 
         summary =
             toPlotSummary customizations addNiceReach allDataPoints
@@ -1113,8 +1126,8 @@ addNiceReachForSeries series =
 
 
 addNiceReachForArea : Maybe String -> TempPlotSummary -> TempPlotSummary
-addNiceReachForArea area ({ y, x } as summary) =
-    case area of
+addNiceReachForArea area_ ({ y, x } as summary) =
+    case area_ of
         Nothing ->
             summary
 
@@ -1153,27 +1166,27 @@ viewBars =
 viewBarsCustom : PlotCustomizations msg -> Bars data msg -> data -> Html msg
 viewBarsCustom customizations bars data =
     let
-        groups =
+        groups_ =
             bars.toGroups data
 
-        toDataPoint index group { height } =
+        toDataPoint index group_ { height } =
             { x = toFloat index + 1
             , y = height
-            , xLine = group.verticalLine (toFloat index + 1)
+            , xLine = group_.verticalLine (toFloat index + 1)
             , yLine = Nothing
             }
 
-        toDataPoints index group =
-            List.map (toDataPoint index group) group.bars
+        toDataPoints index group_ =
+            List.map (toDataPoint index group_) group_.bars
 
         dataPoints =
-            List.concat (List.indexedMap toDataPoints groups)
+            List.concat (List.indexedMap toDataPoints groups_)
 
         summary =
             toPlotSummary customizations addNiceReachForBars dataPoints
 
         xLabels =
-            List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
+            List.indexedMap (\index group_ -> group_.label (toFloat index + 1)) groups_
 
         viewGlitter =
             dataPoints
@@ -1183,8 +1196,8 @@ viewBarsCustom customizations bars data =
                 |> Just
 
         hints =
-            groups
-                |> List.indexedMap (\index group -> group.hint (toFloat index + 1))
+            groups_
+                |> List.indexedMap (\index group_ -> group_.hint (toFloat index + 1))
                 |> List.filterMap identity
 
         viewHint =
@@ -1192,15 +1205,15 @@ viewBarsCustom customizations bars data =
                 [] ->
                     text ""
 
-                hints ->
-                    Html.map never <| customizations.hintContainer summary hints
+                hints_ ->
+                    Html.map never <| customizations.hintContainer summary hints_
 
         children =
             List.filterMap identity
                 [ Just (defineClipPath customizations summary)
                 , viewHorizontalGrid summary customizations.grid.horizontal
                 , viewVerticalGrid summary customizations.grid.vertical
-                , viewActualBars summary bars groups
+                , viewActualBars summary bars groups_
                 , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
                 , viewVerticalAxis summary bars.axis []
                 , viewGlitter
@@ -1227,10 +1240,10 @@ defineClipPath customizations summary =
     Svg.defs [] <|
         Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
             [ Svg.rect
-                [ Attributes.x (toString summary.x.marginLower)
-                , Attributes.y (toString summary.y.marginLower)
-                , Attributes.width (toString (length summary.x))
-                , Attributes.height (toString (length summary.y))
+                [ Attributes.x (String.fromFloat summary.x.marginLower)
+                , Attributes.y (String.fromFloat summary.y.marginLower)
+                , Attributes.width (String.fromFloat (length summary.x))
+                , Attributes.height (String.fromFloat (length summary.y))
                 ]
                 []
             ]
@@ -1249,21 +1262,29 @@ containerAttributes customizations summary =
             [ Html.Events.on "mousemove" (handleHint summary toMsg)
             , Html.Events.onMouseLeave (toMsg Nothing)
             , Attributes.id customizations.id
-            , Html.Attributes.style "position" "relative"
-            , Html.Attributes.style "margin" "0 auto"
             ]
+                ++ oldStyle
+                    [ ( "position", "relative" )
+                    , ( "margin", "0 auto" )
+                    ]
 
         Nothing ->
-            [ Attributes.id customizations.id
-            , Html.Attributes.style "position" "relative"
-            , Html.Attributes.style "margin" "0 auto"
-            ]
+            Attributes.id customizations.id
+                :: oldStyle
+                    [ ( "position", "relative" )
+                    , ( "margin", "0 auto" )
+                    ]
 
 
 innerAttributes : PlotCustomizations msg -> List (Attribute msg)
 innerAttributes customizations =
     customizations.attributes
-        ++ [ Attributes.viewBox <| "0 0 " ++ toString customizations.width ++ " " ++ toString customizations.height ]
+        ++ [ Attributes.viewBox <|
+                "0 0 "
+                    ++ String.fromInt customizations.width
+                    ++ " "
+                    ++ String.fromInt customizations.height
+           ]
 
 
 viewActualJunk : PlotSummary -> JunkCustomizations msg -> Svg msg
@@ -1339,7 +1360,7 @@ defaultPlotSummary =
 
 
 toPlotSummary : PlotCustomizations msg -> (TempPlotSummary -> TempPlotSummary) -> List { a | x : Float, y : Float } -> PlotSummary
-toPlotSummary customizations toNiceReach points =
+toPlotSummary customizations toNiceReach points_ =
     let
         foldAxis summary v =
             { min = min summary.min v
@@ -1362,7 +1383,7 @@ toPlotSummary customizations toNiceReach points =
                         }
 
         plotSummary =
-            points
+            points_
                 |> List.foldl foldPlot Nothing
                 |> Maybe.withDefault defaultPlotSummary
                 |> toNiceReach
@@ -1470,8 +1491,8 @@ viewInterpolation :
     -> List (Attribute Never)
     -> List (DataPoint msg)
     -> Svg Never
-viewInterpolation customizations summary toLine toArea area attributes dataPoints =
-    case area of
+viewInterpolation customizations summary toLine toArea area_ attributes dataPoints =
+    case area_ of
         Nothing ->
             draw
                 (fill transparent
@@ -1520,7 +1541,7 @@ viewDataPoint plotSummary { x, y, view } =
 viewCircle : Float -> String -> Svg msg
 viewCircle radius color =
     Svg.circle
-        [ r (toString radius)
+        [ r (String.fromFloat radius)
         , stroke "transparent"
         , fill color
         ]
@@ -1532,10 +1553,10 @@ viewCircle radius color =
 viewSquare : Float -> String -> Svg msg
 viewSquare width color =
     rect
-        [ Attributes.width (toString width)
-        , Attributes.height (toString width)
-        , Attributes.x (toString (-width / 2))
-        , Attributes.y (toString (-width / 2))
+        [ Attributes.width (String.fromFloat width)
+        , Attributes.height (String.fromFloat width)
+        , Attributes.x (String.fromFloat (-width / 2))
+        , Attributes.y (String.fromFloat (-width / 2))
         , stroke "transparent"
         , fill color
         ]
@@ -1548,11 +1569,11 @@ classy plot!
 viewDiamond : Float -> Float -> String -> Svg msg
 viewDiamond width height color =
     rect
-        [ Attributes.width (toString width)
-        , Attributes.height (toString height)
+        [ Attributes.width (String.fromFloat width)
+        , Attributes.height (String.fromFloat height)
         , Attributes.transform "rotate(45)"
-        , Attributes.x (toString (-width / 2))
-        , Attributes.y (toString (-height / 2))
+        , Attributes.x (String.fromFloat (-width / 2))
+        , Attributes.y (String.fromFloat (-height / 2))
         , stroke "transparent"
         , fill color
         ]
@@ -1576,7 +1597,7 @@ viewTriangle color =
 
 
 viewActualBars : PlotSummary -> Bars data msg -> List BarGroup -> Maybe (Svg msg)
-viewActualBars summary { styles, maxWidth } groups =
+viewActualBars summary { styles, maxWidth } groups_ =
     let
         barsPerGroup =
             toFloat (List.length styles)
@@ -1599,33 +1620,33 @@ viewActualBars summary { styles, maxWidth } groups =
         offset x i =
             x + width * (toFloat i - barsPerGroup / 2)
 
-        viewLabel label =
+        viewLabel_ label =
             g
-                [ Attributes.transform ("translate(" ++ toString (scaleValue summary.x (width / 2)) ++ ", -5)")
+                [ Attributes.transform ("translate(" ++ String.fromFloat (scaleValue summary.x (width / 2)) ++ ", -5)")
                 , Attributes.style "text-anchor: middle;"
                 ]
                 [ label ]
 
         viewBar x attributes ( i, { height, label } ) =
             g [ place summary { x = offset x i, y = max (closestToZero summary.y.min summary.y.max) height } 0 0 ]
-                [ Svg.map never (Maybe.map viewLabel label |> Maybe.withDefault (text ""))
+                [ Svg.map never (Maybe.map viewLabel_ label |> Maybe.withDefault (text ""))
                 , rect
                     (attributes
-                        ++ [ Attributes.width (toString (scaleValue summary.x width))
-                           , Attributes.height (toString (scaleValue summary.y (abs height)))
+                        ++ [ Attributes.width (String.fromFloat (scaleValue summary.x width))
+                           , Attributes.height (String.fromFloat (scaleValue summary.y (abs height)))
                            ]
                     )
                     []
                 ]
 
-        indexedHeights group =
-            List.indexedMap (\a b -> ( a, b )) group.bars
+        indexedHeights group_ =
+            List.indexedMap (\i m -> ( i, m )) group_.bars
 
-        viewGroup index group =
+        viewGroup index group_ =
             g [ class "elm-plot__bars__group" ]
-                (List.map2 (viewBar (toFloat (index + 1))) styles (indexedHeights group))
+                (List.map2 (viewBar (toFloat (index + 1))) styles (indexedHeights group_))
     in
-    Just <| g [ class "elm-plot__bars" ] (List.indexedMap viewGroup groups)
+    Just <| g [ class "elm-plot__bars" ] (List.indexedMap viewGroup groups_)
 
 
 
@@ -1662,17 +1683,30 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, flipAnchor
             else
                 20
 
-        viewTickLine { attributes, length, position } =
-            g [ place summary (at position) 0 0 ] [ viewTickInner attributes 0 (lengthOfTick length) ]
+        viewTickLine record =
+            let
+                { attributes, length } =
+                    record
+            in
+            g [ place summary (at record.position) 0 0 ]
+                [ viewTickInner attributes 0 (lengthOfTick length)
+                ]
 
-        viewLabel { position, view } =
-            g [ place summary (at position) 0 positionOfLabel, style "text-anchor: middle;" ]
+        viewLabel_ record =
+            let
+                { view } =
+                    record
+            in
+            g
+                [ place summary (at record.position) 0 positionOfLabel
+                , style "text-anchor: middle;"
+                ]
                 [ view ]
     in
     g [ class "elm-plot__horizontal-axis" ]
         [ viewAxisLine summary at axisLine
         , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
-        , g [ class "elm-plot__labels" ] (List.map viewLabel (labels ++ glitterLabels))
+        , g [ class "elm-plot__labels" ] (List.map viewLabel_ (labels ++ glitterLabels))
         ]
 
 
@@ -1717,18 +1751,29 @@ viewActualVerticalAxis summary { position, axisLine, ticks, labels, flipAnchor }
             else
                 "text-anchor: end;"
 
-        viewTickLine { attributes, length, position } =
-            g [ place summary (at position) 0 0 ]
+        viewTickLine record =
+            let
+                { attributes, length } =
+                    record
+            in
+            g [ place summary (at record.position) 0 0 ]
                 [ viewTickInner attributes (lengthOfTick length) 0 ]
 
-        viewLabel { position, view } =
-            g [ place summary (at position) positionOfLabel 5, style anchorOfLabel ]
+        viewLabel_ record =
+            let
+                { view } =
+                    record
+            in
+            g
+                [ place summary (at record.position) positionOfLabel 5
+                , style anchorOfLabel
+                ]
                 [ view ]
     in
     g [ class "elm-plot__vertical-axis" ]
         [ viewAxisLine summary at axisLine
         , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
-        , g [ class "elm-plot__labels" ] (List.map viewLabel labels)
+        , g [ class "elm-plot__labels" ] (List.map viewLabel_ labels)
         ]
 
 
@@ -1748,7 +1793,7 @@ viewAxisLine summary at axisLine =
 
 viewTickInner : List (Attribute msg) -> Float -> Float -> Svg msg
 viewTickInner attributes width height =
-    Svg.line (x2 (toString width) :: y2 (toString height) :: attributes) []
+    Svg.line (x2 (String.fromFloat width) :: y2 (String.fromFloat height) :: attributes) []
 
 
 {-| -}
@@ -1772,8 +1817,8 @@ viewGlitterLines :
         }
     -> List (Svg Never)
 viewGlitterLines summary { xLine, yLine, x, y } =
-    [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) xLine)
-    , viewAxisLine summary (\x -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.x) yLine)
+    [ viewAxisLine summary (\y_ -> { x = x, y = y_ }) (Maybe.map (\toLine -> toLine summary.y) xLine)
+    , viewAxisLine summary (\x_ -> { x = x_, y = y }) (Maybe.map (\toLine -> toLine summary.x) yLine)
     ]
 
 
@@ -1835,22 +1880,31 @@ remove banned values =
 
 
 tickPosition : Float -> Float -> Int -> Float
-tickPosition delta firstValue index =
-    firstValue
+tickPosition delta firstValue_ index =
+    firstValue_
         + toFloat index
         * delta
         |> Round.round (deltaPrecision delta)
         |> String.toFloat
-        |> Result.withDefault 0
+        |> Maybe.withDefault 0
 
 
 deltaPrecision : Float -> Int
 deltaPrecision delta =
-    delta
-        |> toString
-        |> Regex.find (Regex.AtMost 1) (Regex.regex "\\.[0-9]*")
-        |> List.map .match
-        |> List.head
+    let
+        str =
+            delta
+                |> String.fromFloat
+
+        found =
+            Regex.fromString "\\.[0-9]*"
+                |> Maybe.map
+                    (\r ->
+                        Regex.findAtMost 1 r str
+                    )
+                |> Maybe.andThen (List.map .match >> List.head)
+    in
+    found
         |> Maybe.withDefault ""
         |> String.length
         |> (-) 1
@@ -1869,8 +1923,8 @@ ceilToNearest precision value =
 
 
 count : Float -> Float -> Float -> Float -> Int
-count delta lowest range firstValue =
-    floor ((range - (abs lowest - abs firstValue)) / delta)
+count delta lowest range firstValue_ =
+    floor ((range - (abs lowest - abs firstValue_)) / delta)
 
 
 niceInterval : Float -> Float -> Int -> Float
