@@ -3,7 +3,7 @@
     "name": "Bractlet/elm-plot",
     "summary": "Bractlet version of elm-plot (forked from terezka)",
     "license": "BSD-3-Clause",
-    "version": "2.0.0",
+    "version": "1.0.1",
     "exposed-modules": [
         "Plot"
     ],
