@@ -1303,20 +1303,12 @@ plotPosition =
 
 boundingPositionIfNotSvg : Json.Decoder DOM.Rectangle
 boundingPositionIfNotSvg =
-<<<<<<< HEAD
     Json.field "namespaceURI" Json.string
         |> Json.andThen
             (\namespace ->
                 if String.toLower namespace /= "http://www.w3.org/2000/svg" then
                     DOM.boundingClientRect
 
-=======
-    (Json.field "namespaceURI" Json.string)
-        |> Json.andThen
-            (\namespace ->
-                if (String.toLower namespace) /= "http://www.w3.org/2000/svg" then
-                    DOM.boundingClientRect
->>>>>>> origin/bractlet-fixes
                 else
                     Json.fail "inside svg yet"
             )
