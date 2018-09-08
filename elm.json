@@ -1,9 +1,9 @@
 {
     "type": "package",
-    "name": "terezka/elm-plot",
-    "summary": "Tufte plots and charts in SVG and Elm!",
+    "name": "Bractlet/elm-plot",
+    "summary": "Bractlet version of elm-plot (forked from terezka)",
     "license": "BSD-3-Clause",
-    "version": "5.1.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "Plot"
     ],
