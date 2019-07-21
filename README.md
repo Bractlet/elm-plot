@@ -1,3 +1,9 @@
+# Note:
+
+This is a fork of `terezka/elm-plot` that fixes a particular bug we were having with the normal library. 
+It is not recommended for general use. We published this package
+when we started using Elm, but in hindsight we probably should have just vendored it.
+
 # Elm Plot
 
 A library for plotting using SVG and Elm. You can take a look [here](https://terezka.github.io/elm-plot)!
